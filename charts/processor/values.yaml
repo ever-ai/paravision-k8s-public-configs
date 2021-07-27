@@ -6,7 +6,7 @@ app:
 image:
   repository: paravision/processor
   pullPolicy: IfNotPresent
-  tag: v3-zill-openvino
+  tag: v4.1.0-zill-openvino
 
 imagePullSecrets: []
 
