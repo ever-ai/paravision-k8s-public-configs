@@ -20,7 +20,7 @@ spec:
       labels:
         {{- include "processor.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.image.pullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -36,19 +36,77 @@ spec:
             - name: grpc
               containerPort: 50051
               protocol: TCP
-            {{- if (eq .Values.app.httpProxy "on") }}
+            {{- if .Values.processor.http.enabled }}
             - name: http
               containerPort: 8081
               protocol: TCP
             {{- end }}
-          #livenessProbe:
-          #  exec:
-          #    command: ["grpc_health_probe", "-addr=:50051"]
+          startupProbe:
+            failureThreshold: 30
+            exec:
+              command: ["grpc_health_probe", "-addr=:50051"]
+          livenessProbe:
+            exec:
+              command: ["grpc_health_probe", "-addr=:50051"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: HTTP_PROXY
-              value: "{{ .Values.app.httpProxy }}"
+            - name: PV_INFERENCE_WORKERS
+              value: "{{ .Values.processor.inferenceWorkers }}"
+            - name: PV_TRT_ENGINE_PATH
+              value: {{ .Values.processor.trtEnginePath }}
+            {{- if .Values.processor.useNVJPEG }}
+            - name: PV_USE_NVJPEG
+              value: "on"
+            {{- end }}
+            {{- if .Values.processor.http.enabled }}
+            - name: PV_HTTP_INTERFACE
+              value: "on"
+            {{- if .Values.processor.http.auth.enabled }}
+            - name: PV_HTTP_AUTH
+              value: "on"
+            - name: PV_HTTP_AUTH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "processor.fullname" . }}-secrets
+                  key: httpAuthUser
+            - name: PV_HTTP_AUTH_PASSWORD_FILE
+              value: "/var/run/secrets/paravision/processor/httpAuthPassword"
+            {{- end }}
+            {{- end }}
+            {{- if .Values.processor.ssl.enabled }}
+            - name: PV_SSL
+              value: "on"
+            {{- with .Values.processor.ssl.cert }}
+            - name: PV_SSL_CERT
+              value: {{ . }}
+            {{- end }}
+            {{- with .Values.processor.ssl.key }}
+            - name: PV_SSL_KEY
+              value: {{ . }}
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.processor.http.auth.enabled }}
+            - name: {{ include "processor.name" . }}-secrets
+              mountPath: "/var/run/secrets/paravision/processor"
+              readOnly: true
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        {{- if .Values.processor.http.auth.enabled }}
+        - name: {{ include "processor.name" . }}-secrets
+          secret:
+            secretName: {{ include "processor.fullname" . }}-secrets
+            items:
+              - key: httpAuthPassword
+                path: httpAuthPassword
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
