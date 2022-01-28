@@ -1,15 +1,51 @@
-replicaCount: 1
+# Values below correspond to available Identity options, see Identity install documentation for more detailed descriptions.
+identity:
+  http:
+    # Enable HTTP Interface.
+    enabled: false
+    auth:
+      # Enable HTTP basic authentication.
+      enabled: false
+      user: null
+      password: null
+  ssl:
+    # Enable encryption
+    enabled: false
+    cert: "/server.crt"
+    key: "/server.key"
+  # Database settings
+  db:
+    # For PostgreSQL
+    postgresURI: null
+    # For MySQL+Milvus (-large variant)
+    mysqlURI: null
+    milvusURI: null
 
-app:
-  postgresUri: postgresql://postgres:postgres@postgres/?sslmode=disabled
-  httpProxy: 'on'
+# Extra volumes to add to the deployment, can be used to inject custom SSL certificate from external secrets
+extraVolumes: []
+extraVolumeMounts: []
 
 image:
   repository: paravision/identity
   pullPolicy: IfNotPresent
-  tag: v3.1.0
+  pullSecrets: []
+  tag: v4.0.0
 
-imagePullSecrets: []
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
 
 service:
   type: ClusterIP
@@ -41,20 +77,6 @@ ingress:
           - /rest
 
     tls: []
-
-resources:
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
 
 nodeSelector: {}
 tolerations: []

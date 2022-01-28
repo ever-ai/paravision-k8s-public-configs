@@ -19,7 +19,7 @@ spec:
       name: {{ include "identity.fullname" . }}-migrations
     spec:
       restartPolicy: Never
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.image.pullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -31,14 +31,22 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.nodeSelector }}
-          nodeSelector:
-            {{- toYaml . | nindent 8 }}
-          {{- end }}
           env:
-            - name: POSTGRES_URI
-              value: {{ .Values.app.postgresUri }}
+            - name: DB_URI
+              value: {{ (or .Values.identity.db.postgresURI .Values.identity.mysqlURI) }}
           args:
             - sh
             - -c
-            - /migrate -source file://migrations -database ${POSTGRES_URI} up
+            - /migrate -source file://migrations -database ${DB_URI} up
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

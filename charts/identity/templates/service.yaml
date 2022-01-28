@@ -11,7 +11,7 @@ spec:
       targetPort: grpc
       protocol: TCP
       name: grpc
-    {{- if (eq .Values.app.httpProxy "on") }}
+    {{- if .Values.identity.http.enabled }}
     - port: {{ .Values.service.httpPort }}
       targetPort: http
       protocol: TCP
