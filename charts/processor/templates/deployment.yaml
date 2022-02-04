@@ -42,7 +42,7 @@ spec:
               protocol: TCP
             {{- end }}
           startupProbe:
-            failureThreshold: 30
+            failureThreshold: 30  # 5 minutes, with default periodSeconds = 10
             exec:
               command: ["grpc_health_probe", "-addr=:50051"]
           livenessProbe:
@@ -54,7 +54,7 @@ spec:
             - name: PV_INFERENCE_WORKERS
               value: "{{ .Values.processor.inferenceWorkers }}"
             - name: PV_TRT_ENGINE_PATH
-              value: {{ .Values.processor.trtEnginePath }}
+              value: "{{ .Values.processor.trtEnginePath }}"
             {{- if .Values.processor.useNVJPEG }}
             - name: PV_USE_NVJPEG
               value: "on"
