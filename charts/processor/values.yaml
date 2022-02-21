@@ -19,6 +19,8 @@ processor:
   useNVJPEG: false
   # Path inside the container to store compiled models.
   trtEnginePath: "/tmp"
+  # Scoring mode affects recognition and determines how faces are compared to each other.
+  scoringMode: "enhanced"
 
 # Extra volumes to add to the deployment, can be used to inject custom SSL certificate from external secrets
 extraVolumes: []

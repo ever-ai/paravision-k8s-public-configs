@@ -55,6 +55,8 @@ spec:
               value: "{{ .Values.processor.inferenceWorkers }}"
             - name: PV_TRT_ENGINE_PATH
               value: "{{ .Values.processor.trtEnginePath }}"
+            - name: PV_SCORING_MODE
+              value: "{{ .Values.processor.scoringMode }}"
             {{- if .Values.processor.useNVJPEG }}
             - name: PV_USE_NVJPEG
               value: "on"
