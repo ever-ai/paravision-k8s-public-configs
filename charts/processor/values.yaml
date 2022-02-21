@@ -1,14 +1,53 @@
-replicaCount: 1
+# Values below correspond to available Processor options, see Processor install documentation for more detailed descriptions.
+processor:
+  http:
+    # Enable HTTP Interface.
+    enabled: false
+    auth:
+      # Enable HTTP basic authentication.
+      enabled: false
+      user: null
+      password: null
+  ssl:
+    # Enable encryption
+    enabled: false
+    cert: "/server.crt"
+    key: "/server.key"
+  # The number of workers processing requests.
+  inferenceWorkers: "1"
+  # Use GPU-based decoding of JPEG images on NVIDIA GPUs.
+  useNVJPEG: false
+  # Path inside the container to store compiled models.
+  trtEnginePath: "/tmp"
+  # Scoring mode affects recognition and determines how faces are compared to each other.
+  scoringMode: "enhanced"
 
-app:
-  httpProxy: "on"
+# Extra volumes to add to the deployment, can be used to inject custom SSL certificate from external secrets
+extraVolumes: []
+extraVolumeMounts: []
 
 image:
   repository: paravision/processor
   pullPolicy: IfNotPresent
-  tag: v4.1.0-zill-openvino
+  pullSecrets: []
+  tag: v6.0.0-gen5-fast-openvino
 
-imagePullSecrets: []
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+    nvidia.com/gpu: 0
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
 
 service:
   type: ClusterIP
@@ -40,20 +79,6 @@ ingress:
           - /rest
 
     tls: []
-
-resources:
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
 
 nodeSelector: {}
 tolerations: []
