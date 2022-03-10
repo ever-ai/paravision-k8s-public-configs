@@ -33,11 +33,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: DB_URI
-              value: {{ (or .Values.identity.db.postgresURI .Values.identity.mysqlURI) }}
+              value: {{ (or .Values.identity.db.postgresURI .Values.identity.db.mysqlURI) }}
           args:
             - sh
             - -c
-            - /migrate -source file://migrations -database ${DB_URI} up
+            - /migrate -source file://migrations/{{ ternary "postgres" "mysql" (empty .Values.identity.db.mysqlURI) }} -database ${DB_URI} up
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

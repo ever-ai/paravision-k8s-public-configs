@@ -51,29 +51,34 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
             {{- if .Values.identity.db.postgresURI }}
-            - name: POSTGRES_URI
-              value: {{ .Values.identity.db.postgresURI }}
-            {{- else if (and .Values.identity.db.mysqlURI .Values.identity.db.milvusURI) }}
-            - name: MYSQL_URI
-              value: {{ .Values.identity.db.mysqlURI }}
-            - name: MILVUS_URI
-              value: {{ .Values.identity.db.milvusURI }}
-            {{- end }}
-            {{- if .Values.identity.http.enabled }}
-            - name: HTTP_INTERFACE
-              value: "on"
-            - name: HTTP_PROXY
-              value: "on"
-            {{- if .Values.identity.http.auth.enabled }}
-            - name: HTTP_AUTH
-              value: "on"
-            - name: HTTP_AUTH_USER
+            - name: PV_POSTGRES_URI
               valueFrom:
                 secretKeyRef:
                   name: {{ include "identity.fullname" . }}-secrets
-                  key: httpAuthUser
-            - name: HTTP_AUTH_PASSWORD_FILE
-              value: "/var/run/secrets/paravision/identity/httpAuthPassword"
+                  key: postgresURI
+            {{- else if (and .Values.identity.db.mysqlURI .Values.identity.db.milvusURI) }}
+            - name: PV_MYSQL_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "identity.fullname" . }}-secrets
+                  key: mysqlURI
+            - name: PV_MILVUS_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "identity.fullname" . }}-secrets
+                  key: milvusURI
+            {{- end }}
+            {{- if .Values.identity.http.enabled }}
+            - name: PV_HTTP_INTERFACE
+              value: "on"
+            {{- if .Values.identity.auth.enabled }}
+            - name: PV_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "identity.fullname" . }}-secrets
+                  key: authUser
+            - name: PV_PASSWORD_FILE
+              value: "/var/run/secrets/paravision/identity/authPassword"
             {{- end }}
             {{- end }}
             {{- if .Values.identity.ssl.enabled }}
@@ -89,7 +94,7 @@ spec:
             {{- end }}
             {{- end }}
           volumeMounts:
-            {{- if .Values.identity.http.auth.enabled }}
+            {{- if .Values.identity.auth.enabled }}
             - name: {{ include "identity.name" . }}-secrets
               mountPath: "/var/run/secrets/paravision/identity"
               readOnly: true
@@ -98,13 +103,13 @@ spec:
               {{- toYaml . | nindent 12 }}
             {{- end }}
       volumes:
-        {{- if .Values.identity.http.auth.enabled }}
+        {{- if .Values.identity.auth.enabled }}
         - name: {{ include "identity.name" . }}-secrets
           secret:
             secretName: {{ include "identity.fullname" . }}-secrets
             items:
-              - key: httpAuthPassword
-                path: httpAuthPassword
+              - key: authPassword
+                path: authPassword
         {{- end }}
         {{- with .Values.extraVolumes }}
           {{- toYaml . | nindent 8 }}
