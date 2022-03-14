@@ -76,7 +76,7 @@ ingress:
     hosts:
       - host: processor.cluster.local
         paths:
-          - /rest
+          - /v6
 
     tls: []
 

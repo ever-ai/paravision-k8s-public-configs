@@ -74,7 +74,7 @@ ingress:
     hosts:
       - host: identity.cluster.local
         paths:
-          - /rest
+          - /v5
 
     tls: []
 
