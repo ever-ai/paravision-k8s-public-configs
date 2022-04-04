@@ -1,13 +1,13 @@
 # Values below correspond to available Identity options, see Identity install documentation for more detailed descriptions.
 identity:
+  auth:
+    # Enable basic authentication.
+    enabled: false
+    user: null
+    password: null
   http:
     # Enable HTTP Interface.
     enabled: false
-    auth:
-      # Enable HTTP basic authentication.
-      enabled: false
-      user: null
-      password: null
   ssl:
     # Enable encryption
     enabled: false
@@ -17,7 +17,7 @@ identity:
   db:
     # For PostgreSQL
     postgresURI: null
-    # For MySQL+Milvus (-large variant)
+    # For MySQL+Milvus
     mysqlURI: null
     milvusURI: null
 
@@ -29,7 +29,7 @@ image:
   repository: paravision/identity
   pullPolicy: IfNotPresent
   pullSecrets: []
-  tag: v4.0.0
+  tag: v5.0.0
 
 replicaCount: 1
 
@@ -74,7 +74,7 @@ ingress:
     hosts:
       - host: identity.cluster.local
         paths:
-          - /rest
+          - /v5
 
     tls: []
 
