@@ -1,4 +1,5 @@
-# Values below correspond to available Processor options, see Processor install documentation for more detailed descriptions.
+# For system requirements and detailed descriptions of options
+# that correspond to values below, see Processor's documentation.
 processor:
   http:
     # Enable HTTP Interface.
