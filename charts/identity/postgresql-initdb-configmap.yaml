@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity-initdb
+data:
+  identity-cube.sh: |
+    echo "CREATE EXTENSION IF NOT EXISTS CUBE" | postgresql_execute "identity" "postgres" "$POSTGRESQL_POSTGRES_PASSWORD"
