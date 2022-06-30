@@ -84,3 +84,16 @@ ingress:
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+# Default to Pod Security Standard Restricted Profile (https://kubernetes.io/docs/concepts/security/pod-security-standards/)
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1003
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
